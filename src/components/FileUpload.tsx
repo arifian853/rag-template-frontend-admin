@@ -101,7 +101,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
         updateFileProgress(fileId, Math.min(90, Math.random() * 80 + 10));
       }, 200);
 
-      const response = await fetch(`http://localhost:7860${endpoint}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}${endpoint}`, {
         method: 'POST',
         body: formData,
       });

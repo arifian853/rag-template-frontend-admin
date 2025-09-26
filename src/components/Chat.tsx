@@ -118,7 +118,7 @@ const Chat: React.FC = () => {
         history: history
       };
 
-      const response = await fetch('http://localhost:7860/chat', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

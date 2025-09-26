@@ -81,7 +81,7 @@ export function KnowledgeList({ onRefresh }: KnowledgeListProps) {
         sort_order: sortOrder
       });
       
-      const response = await fetch(`http://localhost:7860/knowledge?${params}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/knowledge?${params}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -123,7 +123,7 @@ export function KnowledgeList({ onRefresh }: KnowledgeListProps) {
 
   const handleUpdate = async (id: string, updateData: UpdateKnowledgeRequest) => {
     try {
-      const response = await fetch(`http://localhost:7860/knowledge/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/knowledge/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export function KnowledgeList({ onRefresh }: KnowledgeListProps) {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:7860/knowledge/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/knowledge/${id}`, {
         method: 'DELETE',
       });
 
@@ -182,7 +182,7 @@ export function KnowledgeList({ onRefresh }: KnowledgeListProps) {
 
   const handleDeleteAll = async () => {
     try {
-      const response = await fetch('http://localhost:7860/knowledge', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/knowledge`, {
         method: 'DELETE',
       });
 

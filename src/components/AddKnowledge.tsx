@@ -52,7 +52,7 @@ export function AddKnowledge({ onKnowledgeAdded }: AddKnowledgeProps) {
         metadata: Object.keys(metadata).length > 0 ? metadata : undefined
       };
 
-      const response = await fetch('http://localhost:7860/add-knowledge', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/add-knowledge`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
