@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KnowledgeList } from '@/components/KnowledgeList';
 import { AddKnowledge } from '@/components/AddKnowledge';
+import { SystemPromptManager } from '@/components/SystemPromptManager';
 import Chat from './components/Chat';
 import FileUpload from './components/FileUpload';
 import './App.css';
@@ -31,7 +32,7 @@ function App() {
         </div>
 
         <Tabs defaultValue="view" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="view" className="text-sm font-medium">
               View Knowledge
             </TabsTrigger>
@@ -43,6 +44,9 @@ function App() {
             </TabsTrigger>
             <TabsTrigger value="add" className="text-sm font-medium">
               Add Knowledge
+            </TabsTrigger>
+            <TabsTrigger value="prompts" className="text-sm font-medium">
+              System Prompts
             </TabsTrigger>
           </TabsList>
 
@@ -60,6 +64,10 @@ function App() {
 
           <TabsContent value="upload" className="space-y-4">
             <FileUpload onUploadSuccess={handleKnowledgeAdded} />
+          </TabsContent>
+
+          <TabsContent value="prompts" className="space-y-4">
+            <SystemPromptManager />
           </TabsContent>
         </Tabs>
       </div>
