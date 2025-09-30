@@ -33,7 +33,7 @@ export function AddKnowledge({ onKnowledgeAdded }: AddKnowledgeProps) {
     setMessage(null);
 
     try {
-      // Parse metadata dari input string (format: key1:value1,key2:value2)
+      // Parse metadata dari input string (dengan format: key1:value1,key2:value2)
       const metadata: { [key: string]: string } = {};
       if (metadataInput.trim()) {
         const pairs = metadataInput.split(',');
