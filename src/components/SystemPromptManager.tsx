@@ -215,7 +215,8 @@ export function SystemPromptManager() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">System Prompt Management</h2>
+        <h2 className="text-2xl font-bold">System Prompt Management <br />  <p className="text-sm text-muted-foreground font-medium">You may need to delete entire chat to use the new system prompt. <br /> Click "reset to default" button if you see no default prompt / any prompt.</p> </h2>
+       
         <div className="flex space-x-2">
           <Button onClick={handleResetToDefault} variant="outline">
             Reset to Default
