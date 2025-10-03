@@ -28,7 +28,7 @@ interface SystemPromptFormData {
   is_default: boolean;
 }
 
-const API_BASE_URL = 'http://localhost:7860';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export function SystemPromptManager() {
   const [prompts, setPrompts] = useState<SystemPrompt[]>([]);
@@ -57,7 +57,21 @@ export function SystemPromptManager() {
       const response = await fetch(`${API_BASE_URL}/system-prompts`);
       if (response.ok) {
         const data = await response.json();
-        setPrompts(data);
+        // Sort prompts: active first, then default, then others
+        const sortedPrompts = data.sort((a: SystemPrompt, b: SystemPrompt) => {
+          // Active prompt always first
+          if (a.is_active && !b.is_active) return -1;
+          if (!a.is_active && b.is_active) return 1;
+          
+          // If both active or both inactive, default comes next
+          if (a.is_default && !b.is_default) return -1;
+          if (!a.is_default && b.is_default) return 1;
+          
+          // If same priority, sort by name
+          return a.name.localeCompare(b.name);
+        });
+        
+        setPrompts(sortedPrompts);
       } else {
         throw new Error('Failed to fetch prompts');
       }
@@ -215,7 +229,13 @@ export function SystemPromptManager() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">System Prompt Management <br />  <p className="text-sm text-muted-foreground font-medium">You may need to delete entire chat to use the new system prompt. <br /> Click "reset to default" button if you see no default prompt / any prompt.</p> </h2>
+        <div>
+          <h2 className="text-2xl font-bold">System Prompt Management</h2>
+          <p className="text-sm text-muted-foreground font-medium">
+            You may need to delete entire chat to use the new system prompt. <br /> 
+            Click "reset to default" button if you see no default prompt / any prompt.
+          </p>
+        </div>
        
         <div className="flex space-x-2">
           <Button onClick={handleResetToDefault} variant="outline">
@@ -287,8 +307,8 @@ export function SystemPromptManager() {
       </div>
 
       <div className="grid gap-4">
-        {prompts.map((prompt) => (
-          <Card key={prompt._id} className={prompt.is_active ? 'border-green-500' : ''}>
+        {prompts.map((prompt, index) => (
+          <Card key={prompt._id} className={`${prompt.is_active ? 'border-green-500 bg-green-50/30' : ''} ${index === 0 && prompt.is_active ? 'ring-2 ring-green-200' : ''}`}>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -302,6 +322,11 @@ export function SystemPromptManager() {
                     {prompt.is_default && (
                       <Badge variant="secondary" className="bg-blue-500 text-white">
                         Default
+                      </Badge>
+                    )}
+                    {index === 0 && prompt.is_active && (
+                      <Badge variant="outline" className="border-green-500 text-green-700">
+                        Currently Used
                       </Badge>
                     )}
                   </CardTitle>
@@ -322,6 +347,7 @@ export function SystemPromptManager() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleActivatePrompt(prompt._id)}
+                      className="border-green-500 text-green-700 hover:bg-green-50"
                     >
                       <Check className="w-4 h-4 mr-1" />
                       Activate
@@ -425,7 +451,7 @@ export function SystemPromptManager() {
 
       {/* View Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="min-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {viewingPrompt?.name}

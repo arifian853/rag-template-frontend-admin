@@ -19,7 +19,7 @@ interface FileItem {
   knowledge_ids: string[];
 }
 
-const API_BASE_URL = 'http://localhost:7860';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export function FileManager() {
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -274,13 +274,7 @@ export function FileManager() {
               Upload New File
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Upload File</DialogTitle>
-              <DialogDescription>
-                Upload a new file to the system
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className='min-w-6xl'>
             <FileUpload
               onUploadSuccess={() => {
                 setIsUploadDialogOpen(false);
@@ -352,11 +346,13 @@ export function FileManager() {
 
       {/* View Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {viewingFile?.original_filename}
-              <Badge variant="secondary" className="uppercase">
+            <DialogTitle className="flex items-center gap-2 pr-8">
+              <span className="truncate max-w-[400px]" title={viewingFile?.original_filename}>
+                {viewingFile?.original_filename}
+              </span>
+              <Badge variant="secondary" className="uppercase shrink-0">
                 {viewingFile?.file_type}
               </Badge>
             </DialogTitle>
@@ -366,32 +362,55 @@ export function FileManager() {
           </DialogHeader>
           {viewingFile && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
-                <div>
-                  <strong>Original Filename:</strong> {viewingFile.original_filename}
-                </div>
-                <div>
-                  <strong>File Type:</strong> {viewingFile.file_type.toUpperCase()}
-                </div>
-                <div>
-                  <strong>File Size:</strong> {formatFileSize(viewingFile.file_size)}
-                </div>
-                <div>
-                  <strong>Upload Date:</strong> {formatDate(viewingFile.upload_date)}
-                </div>
-                <div>
-                  <strong>Knowledge Entries:</strong> {viewingFile.knowledge_ids.length}
-                </div>
-                <div>
-                  <strong>Cloudinary URL:</strong>
-                  <a
-                    href={viewingFile.cloudinary_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline ml-2"
-                  >
-                    View Original
-                  </a>
+              <div className="grid grid-cols-1 gap-4 p-4 bg-muted rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <strong>Original Filename:</strong>
+                    <div className="text-sm text-muted-foreground break-all mt-1">
+                      {viewingFile.original_filename}
+                    </div>
+                  </div>
+                  <div>
+                    <strong>File Type:</strong>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {viewingFile.file_type.toUpperCase()}
+                    </div>
+                  </div>
+                  <div>
+                    <strong>File Size:</strong>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {formatFileSize(viewingFile.file_size)}
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Upload Date:</strong>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {formatDate(viewingFile.upload_date)}
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Knowledge Entries:</strong>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {viewingFile.knowledge_ids.length}
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Cloudinary URL:</strong>
+                    <div className="text-sm mt-1">
+                      <a
+                        href={viewingFile.cloudinary_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline break-all"
+                        title={viewingFile.cloudinary_url}
+                      >
+                        {viewingFile.cloudinary_url.length > 50 
+                          ? `${viewingFile.cloudinary_url.substring(0, 50)}...`
+                          : viewingFile.cloudinary_url
+                        }
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -421,7 +440,8 @@ export function FileManager() {
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete "{deletingFile?.original_filename}"?
-              This will also delete all associated knowledge entries. This action cannot be undone.
+              The file will be permanently removed from storage, but any knowledge entries created from this file will remain intact.
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2">

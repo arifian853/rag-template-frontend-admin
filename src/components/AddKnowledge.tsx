@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent} from '@/components/ui/card';
 import { type CreateKnowledgeRequest, type AddKnowledgeResponse } from '@/types/knowledge';
 
 interface AddKnowledgeProps {
@@ -23,7 +23,7 @@ export function AddKnowledge({ onKnowledgeAdded }: AddKnowledgeProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim() || !formData.content.trim()) {
       setMessage({ type: 'error', text: 'Title and content are required' });
       return;
@@ -75,9 +75,9 @@ export function AddKnowledge({ onKnowledgeAdded }: AddKnowledgeProps) {
         setMessage({ type: 'error', text: 'Failed to add knowledge' });
       }
     } catch (err) {
-      setMessage({ 
-        type: 'error', 
-        text: err instanceof Error ? err.message : 'Failed to add knowledge' 
+      setMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Failed to add knowledge'
       });
     } finally {
       setLoading(false);
@@ -89,14 +89,14 @@ export function AddKnowledge({ onKnowledgeAdded }: AddKnowledgeProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Add New Knowledge</h2>
+          <p className="text-gray-600 mb-4">Create a new knowledge entry to share information with your team.</p>
+        </div>
+      </div>
       <Card>
-        <CardHeader>
-          <CardTitle>Add New Knowledge</CardTitle>
-          <CardDescription>
-            Create a new knowledge entry to share information with your team.
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -149,11 +149,10 @@ export function AddKnowledge({ onKnowledgeAdded }: AddKnowledgeProps) {
             </div>
 
             {message && (
-              <div className={`p-3 rounded-md text-sm ${
-                message.type === 'success' 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
+              <div className={`p-3 rounded-md text-sm ${message.type === 'success'
+                  ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+                }`}>
                 {message.text}
               </div>
             )}

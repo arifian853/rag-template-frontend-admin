@@ -4,7 +4,6 @@ import { KnowledgeList } from '@/components/KnowledgeList';
 import { AddKnowledge } from '@/components/AddKnowledge';
 import { SystemPromptManager } from '@/components/SystemPromptManager';
 import { FileManager } from '@/components/FileManager';
-import { ChatWithFile } from '@/components/ChatWithFile';
 import Chat from './components/Chat';
 import FileUpload from './components/FileUpload';
 import './App.css';
@@ -34,15 +33,12 @@ function App() {
         </div>
 
         <Tabs defaultValue="view" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="view" className="text-sm font-medium">
               View Knowledge
             </TabsTrigger>
             <TabsTrigger value="chat" className="text-sm font-medium">
               Chat
-            </TabsTrigger>
-            <TabsTrigger value="chat-file" className="text-sm font-medium">
-              Chat with File
             </TabsTrigger>
             <TabsTrigger value="files" className="text-sm font-medium">
               File Manager
@@ -68,10 +64,6 @@ function App() {
 
           <TabsContent value="chat" className="space-y-4">
             <Chat />
-          </TabsContent>
-
-          <TabsContent value="chat-file" className="space-y-4">
-            <ChatWithFile />
           </TabsContent>
 
           <TabsContent value="files" className="space-y-4">
