@@ -11,7 +11,7 @@ import {
   DialogTitle 
 } from './ui/dialog';
 import { type ChatRequest, type ChatResponse, type ChatHistoryItem, type ChatSource } from '../types/knowledge';
-import { Send, Bot, User, Trash2, Info, Eye } from 'lucide-react';
+import { Send, Bot, User, Trash2, Info, Eye, FileText, File } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -24,6 +24,7 @@ interface Message {
   type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  sources?: ChatSource[];
 }
 
 const TypingIndicator: React.FC = () => {
@@ -35,6 +36,60 @@ const TypingIndicator: React.FC = () => {
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
       </div>
       <span className="text-xs text-gray-500 ml-2">AI sedang mengetik...</span>
+    </div>
+  );
+};
+
+const FileSourceIndicator: React.FC<{ sources: ChatSource[], onSourceClick: (source: ChatSource) => void }> = ({ sources, onSourceClick }) => {
+  const fileSources = sources.filter(source => source.file_info);
+  const manualSources = sources.filter(source => !source.file_info);
+
+  if (sources.length === 0) return null;
+
+  return (
+    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="flex items-center gap-2 mb-2">
+        <FileText className="w-4 h-4 text-blue-600" />
+        <span className="text-xs font-medium text-blue-800">
+          Jawaban berdasarkan {sources.length} sumber knowledge
+        </span>
+      </div>
+      
+      {fileSources.length > 0 && (
+        <div className="mb-2">
+          <p className="text-xs text-blue-700 mb-1">📁 Dari file ({fileSources.length}):</p>
+          <div className="flex flex-wrap gap-1">
+            {fileSources.map((source, index) => (
+              <button
+                key={index}
+                onClick={() => onSourceClick(source)}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded text-xs transition-colors"
+              >
+                <File className="w-3 h-3" />
+                {source.file_info?.filename || source.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {manualSources.length > 0 && (
+        <div>
+          <p className="text-xs text-blue-700 mb-1">✏️ Manual ({manualSources.length}):</p>
+          <div className="flex flex-wrap gap-1">
+            {manualSources.map((source, index) => (
+              <button
+                key={index}
+                onClick={() => onSourceClick(source)}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs transition-colors"
+              >
+                <FileText className="w-3 h-3" />
+                {source.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -136,7 +191,8 @@ const Chat: React.FC = () => {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
         content: data.response,
-        timestamp: new Date()
+        timestamp: new Date(),
+        sources: data.sources || []
       };
       
       setMessages(prev => [...prev, assistantMessageObj]);
@@ -194,7 +250,7 @@ const Chat: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Chat Container */}
-      <div className="flex flex-col h-[600px] max-w-4xl mx-auto">
+      <div className="flex flex-col h-[650px] mx-auto border-1 rounded-md">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b bg-white rounded-t-lg">
           <div>
@@ -336,6 +392,15 @@ const Chat: React.FC = () => {
                       </div>
                     )}
                   </div>
+                  
+                  {/* File Source Indicator for Assistant Messages */}
+                  {msg.type === 'assistant' && msg.sources && msg.sources.length > 0 && (
+                    <FileSourceIndicator 
+                      sources={msg.sources} 
+                      onSourceClick={handleSourceView}
+                    />
+                  )}
+                  
                   <span className={`text-xs text-gray-400 mt-1 ${
                     msg.type === 'user' ? 'text-right' : 'text-left'
                   }`}>
@@ -408,6 +473,11 @@ const Chat: React.FC = () => {
                       <CardTitle className="text-sm">{source.title}</CardTitle>
                       <CardDescription className="text-xs">
                         {source.source}
+                        {source.file_info && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+                            📁 {source.file_info.file_type?.toUpperCase()}
+                          </span>
+                        )}
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-1">

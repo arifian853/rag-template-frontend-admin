@@ -289,16 +289,16 @@ export function KnowledgeModal({ knowledge, isOpen, onClose, onUpdate, onDelete 
                     <CardTitle className="text-lg">Informasi Pengetahuan</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 gap-4 text-sm">
                       <div>
                         <span className="font-medium">ID:</span>
-                        <div className="text-muted-foreground font-mono text-xs break-all">
+                        <div className="text-muted-foreground font-mono text-xs break-all mt-1 p-2 bg-muted rounded">
                           {knowledge._id || 'N/A'}
                         </div>
                       </div>
                       <div>
                         <span className="font-medium">Sumber:</span>
-                        <div className="text-muted-foreground">
+                        <div className="text-muted-foreground mt-1 break-words">
                           {knowledge.source || 'Tidak ada sumber yang ditentukan'}
                         </div>
                       </div>
@@ -309,9 +309,26 @@ export function KnowledgeModal({ knowledge, isOpen, onClose, onUpdate, onDelete 
                         <span className="font-medium">Metadata Tambahan:</span>
                         <div className="mt-2 space-y-2">
                           {Object.entries(knowledge.metadata).map(([key, value]) => (
-                            <div key={key} className="flex justify-between items-center py-2 border-b">
+                            <div key={key} className="flex flex-col gap-1 py-2 border-b">
                               <span className="font-medium capitalize">{key}:</span>
-                              <span className="text-muted-foreground">{String(value)}</span>
+                              <div className="text-muted-foreground break-all text-sm p-2 bg-muted rounded">
+                                {key.toLowerCase().includes('url') ? (
+                                  <a 
+                                    href={String(value)} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 hover:underline"
+                                    title={String(value)}
+                                  >
+                                    {String(value).length > 60 
+                                      ? `${String(value).substring(0, 60)}...`
+                                      : String(value)
+                                    }
+                                  </a>
+                                ) : (
+                                  <span>{String(value)}</span>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>

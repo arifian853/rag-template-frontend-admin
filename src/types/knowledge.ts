@@ -47,12 +47,21 @@ export interface ChatRequest {
   history: ChatHistoryItem[];
 }
 
+export interface FileInfo {
+  file_id: string;
+  filename: string;
+  file_type: string;
+  cloudinary_url: string;
+  upload_date?: string;
+}
+
 export interface ChatSource {
-  _id?: string; // Add ID field
+  _id?: string;
   title: string;
   content: string;
   source: string;
   similarity_score?: number;
+  file_info?: FileInfo | null;
 }
 
 export interface ChatResponse {
