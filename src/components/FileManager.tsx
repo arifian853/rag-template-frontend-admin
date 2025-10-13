@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Trash2, Eye, Download, Upload, ExternalLink } from 'lucide-react';
 import { toast } from "sonner";
 import FileUpload from './FileUpload';
+import { apiRequest } from '@/lib/utils';
 
 interface FileItem {
   _id: string;
@@ -36,15 +37,10 @@ export function FileManager() {
 
   const fetchFiles = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/files`);
-      if (response.ok) {
-        const data = await response.json();
-        setFiles(data);
-      } else {
-        throw new Error('Failed to fetch files');
-      }
+      const data = await apiRequest('/files');
+      setFiles(data);
     } catch (error) {
-      toast.error("Failed to fetch files");
+      toast.error("Failed to fetch files, please refresh the page");
     } finally {
       setLoading(false);
     }
@@ -54,54 +50,30 @@ export function FileManager() {
     if (!deletingFile) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/files/${deletingFile._id}`, {
+      await apiRequest(`/files/${deletingFile._id}`, {
         method: 'DELETE',
       });
 
-      if (response.ok) {
-        toast.success("File deleted successfully");
-        setIsDeleteDialogOpen(false);
-        setDeletingFile(null);
-        fetchFiles();
-      } else {
-        throw new Error('Failed to delete file');
-      }
+      toast.success("File deleted successfully");
+      setIsDeleteDialogOpen(false);
+      setDeletingFile(null);
+      fetchFiles();
     } catch (error) {
       toast.error("Failed to delete file");
     }
   };
 
-  // const getSignedUrl = async (fileId: string) => {
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/files/${fileId}/signed-url`);
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       return data.signed_url;
-  //     }
-  //     return null;
-  //   } catch (error) {
-  //     console.error('Failed to get signed URL:', error);
-  //     return null;
-  //   }
-  // };
-
   // untuk reprocess OCR
   const handleReprocessOCR = async (file: FileItem) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/files/${file._id}/reprocess-ocr`, {
+      const data = await apiRequest(`/files/${file._id}/reprocess-ocr`, {
         method: 'POST',
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        toast.success(`OCR reprocessing completed! Extracted ${data.text_length} characters.`);
-        fetchFiles(); // Refresh file list
-      } else {
-        const error = await response.json();
-        toast.error(`OCR reprocessing failed: ${error.detail}`);
-      }
-    } catch (error) {
-      toast.error("Failed to reprocess with OCR");
+      toast.success(`OCR reprocessing completed! Extracted ${data.text_length} characters.`);
+      fetchFiles(); // Refresh file list
+    } catch (error: unknown) {
+      toast.error(`OCR reprocessing failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 

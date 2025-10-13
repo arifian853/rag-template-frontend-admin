@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Trash2, Edit, Plus, Check, Eye } from 'lucide-react';
 import { toast } from "sonner"
+import { apiRequest } from '@/lib/utils';
 
 interface SystemPrompt {
   _id: string;
@@ -27,8 +28,6 @@ interface SystemPromptFormData {
   is_active: boolean;
   is_default: boolean;
 }
-
-const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export function SystemPromptManager() {
   const [prompts, setPrompts] = useState<SystemPrompt[]>([]);
@@ -54,29 +53,24 @@ export function SystemPromptManager() {
 
   const fetchPrompts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/system-prompts`);
-      if (response.ok) {
-        const data = await response.json();
-        // Sort prompts: active first, then default, then others
-        const sortedPrompts = data.sort((a: SystemPrompt, b: SystemPrompt) => {
-          // Active prompt always first
-          if (a.is_active && !b.is_active) return -1;
-          if (!a.is_active && b.is_active) return 1;
-          
-          // If both active or both inactive, default comes next
-          if (a.is_default && !b.is_default) return -1;
-          if (!a.is_default && b.is_default) return 1;
-          
-          // If same priority, sort by name
-          return a.name.localeCompare(b.name);
-        });
+      const data = await apiRequest('/system-prompts');
+      // Sort prompts: active first, then default, then others
+      const sortedPrompts = data.sort((a: SystemPrompt, b: SystemPrompt) => {
+        // Active prompt always first
+        if (a.is_active && !b.is_active) return -1;
+        if (!a.is_active && b.is_active) return 1;
         
-        setPrompts(sortedPrompts);
-      } else {
-        throw new Error('Failed to fetch prompts');
-      }
+        // If both active or both inactive, default comes next
+        if (a.is_default && !b.is_default) return -1;
+        if (!a.is_default && b.is_default) return 1;
+        
+        // If same priority, sort by name
+        return a.name.localeCompare(b.name);
+      });
+      
+      setPrompts(sortedPrompts);
     } catch (error) {
-      toast.error("Failed to fetch system prompts");
+      toast.error("Failed to fetch system prompts, please refresh the page");
     } finally {
       setLoading(false);
     }
@@ -84,22 +78,15 @@ export function SystemPromptManager() {
 
   const handleCreatePrompt = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/system-prompts`, {
+      await apiRequest('/system-prompts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        toast.success("System prompt created successfully");
-        setIsCreateDialogOpen(false);
-        resetForm();
-        fetchPrompts();
-      } else {
-        throw new Error('Failed to create prompt');
-      }
+      toast.success("System prompt created successfully");
+      setIsCreateDialogOpen(false);
+      resetForm();
+      fetchPrompts();
     } catch (error) {
       toast.error("Failed to create system prompt");
     }
@@ -109,23 +96,16 @@ export function SystemPromptManager() {
     if (!editingPrompt) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/system-prompts/${editingPrompt._id}`, {
+      await apiRequest(`/system-prompts/${editingPrompt._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        toast.success("System prompt updated successfully");
-        setIsEditDialogOpen(false);
-        setEditingPrompt(null);
-        resetForm();
-        fetchPrompts();
-      } else {
-        throw new Error('Failed to update prompt');
-      }
+      toast.success("System prompt updated successfully");
+      setIsEditDialogOpen(false);
+      setEditingPrompt(null);
+      resetForm();
+      fetchPrompts();
     } catch (error) {
       toast.error("Failed to update system prompt");
     }
@@ -135,18 +115,14 @@ export function SystemPromptManager() {
     if (!deletingPrompt) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/system-prompts/${deletingPrompt._id}`, {
+      await apiRequest(`/system-prompts/${deletingPrompt._id}`, {
         method: 'DELETE',
       });
 
-      if (response.ok) {
-        toast.success("System prompt deleted successfully");
-        setIsDeleteDialogOpen(false);
-        setDeletingPrompt(null);
-        fetchPrompts();
-      } else {
-        throw new Error('Failed to delete prompt');
-      }
+      toast.success("System prompt deleted successfully");
+      setIsDeleteDialogOpen(false);
+      setDeletingPrompt(null);
+      fetchPrompts();
     } catch (error) {
       toast.error("Failed to delete system prompt");
     }
@@ -154,16 +130,12 @@ export function SystemPromptManager() {
 
   const handleActivatePrompt = async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/system-prompts/${id}/activate`, {
+      await apiRequest(`/system-prompts/${id}/activate`, {
         method: 'POST',
       });
 
-      if (response.ok) {
-        toast.success("System prompt activated successfully");
-        fetchPrompts();
-      } else {
-        throw new Error('Failed to activate prompt');
-      }
+      toast.success("System prompt activated successfully");
+      fetchPrompts();
     } catch (error) {
       toast.error("Failed to activate system prompt");
     }
@@ -171,16 +143,12 @@ export function SystemPromptManager() {
 
   const handleResetToDefault = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/system-prompts/reset-to-default`, {
+      await apiRequest('/system-prompts/reset-to-default', {
         method: 'POST',
       });
 
-      if (response.ok) {
-        toast.success("Reset to default prompt successfully");
-        fetchPrompts();
-      } else {
-        throw new Error('Failed to reset to default');
-      }
+      toast.success("Reset to default prompt successfully");
+      fetchPrompts();
     } catch (error) {
       toast.error("Failed to reset to default prompt");
     }
