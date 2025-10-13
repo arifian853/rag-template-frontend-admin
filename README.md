@@ -78,8 +78,7 @@ src/
 
 1. **Clone repository**
    ```bash
-   git clone <repository-url>
-   cd chatbot_cs/contoh
+   git clone <repository-url> ./
    ```
 
 2. **Install dependencies**
