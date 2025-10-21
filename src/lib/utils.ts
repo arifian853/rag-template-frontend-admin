@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // API utility for authenticated requests
-const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:7860';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export const apiRequest = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { type AuthState, type LoginRequest, type LoginResponse, type UserCreate, type UserUpdate } from '@/types/auth';
 
-const API_BASE_URL = 'http://localhost:7860';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 // Async thunks
 export const loginUser = createAsyncThunk(
