@@ -53,7 +53,7 @@ export function SystemPromptManager() {
 
   const fetchPrompts = async () => {
     try {
-      const data = await apiRequest('/system-prompts');
+      const data = await apiRequest('/system-prompts/');
       // Sort prompts: active first, then default, then others
       const sortedPrompts = data.sort((a: SystemPrompt, b: SystemPrompt) => {
         // Active prompt always first
@@ -78,7 +78,7 @@ export function SystemPromptManager() {
 
   const handleCreatePrompt = async () => {
     try {
-      await apiRequest('/system-prompts', {
+      await apiRequest('/system-prompts/', {
         method: 'POST',
         body: JSON.stringify(formData),
       });

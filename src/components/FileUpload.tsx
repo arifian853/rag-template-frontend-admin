@@ -96,6 +96,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
         formData.append('file', file);
       }
 
+      // Get token for authentication
+      const token = localStorage.getItem('token');
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       // Simulate progress
       const progressInterval = setInterval(() => {
         updateFileProgress(fileId, Math.min(90, Math.random() * 80 + 10));
@@ -103,6 +110,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
 
       const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}${endpoint}`, {
         method: 'POST',
+        headers,
         body: formData,
       });
 
@@ -129,7 +137,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
     
     try {
       for (const file of Array.from(files)) {
-        await uploadFile(file, '/upload-file');
+        await uploadFile(file, '/files/upload-file');
       }
     } finally {
       setIsUploading(false);
@@ -152,7 +160,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
       formData.append('title_column', csvTitleColumn);
       formData.append('content_column', csvContentColumn);
       
-      await uploadFile(file, '/upload-csv-custom', formData);
+      await uploadFile(file, '/files/upload-csv-custom', formData);
     } finally {
       setIsUploading(false);
       if (csvFileRef.current) {
@@ -176,7 +184,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
       formData.append('title_column', excelTitleColumn);
       formData.append('content_column', excelContentColumn);
       
-      await uploadFile(file, '/upload-excel-custom', formData);
+      await uploadFile(file, '/files/upload-excel-custom', formData);
     } finally {
       setIsUploading(false);
       if (excelFileRef.current) {
@@ -216,6 +224,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Catatan PDF:</strong> Hanya PDF dengan teks yang dapat dipilih yang didukung. PDF hasil scan atau gambar akan ditolak.
+                </AlertDescription>
+              </Alert>
+              
               <div className="space-y-2">
                 <Label htmlFor="universal-file">Pilih File</Label>
                 <Input
@@ -227,7 +242,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
                   disabled={isUploading}
                 />
                 <p className="text-sm text-gray-500">
-                  Mendukung: PDF, TXT, CSV, XLSX, XLS
+                  Mendukung: PDF (teks selectable), TXT, CSV, XLSX, XLS
                 </p>
               </div>
               

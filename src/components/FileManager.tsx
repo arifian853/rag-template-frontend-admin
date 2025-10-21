@@ -28,6 +28,7 @@ export function FileManager() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
   const [deletingFile, setDeletingFile] = useState<FileItem | null>(null);
 
@@ -37,7 +38,7 @@ export function FileManager() {
 
   const fetchFiles = async () => {
     try {
-      const data = await apiRequest('/files');
+      const data = await apiRequest('/files/');
       setFiles(data);
     } catch (error) {
       toast.error("Failed to fetch files, please refresh the page");
@@ -49,6 +50,7 @@ export function FileManager() {
   const handleDeleteFile = async () => {
     if (!deletingFile) return;
 
+    setIsDeleting(true);
     try {
       await apiRequest(`/files/${deletingFile._id}`, {
         method: 'DELETE',
@@ -60,20 +62,8 @@ export function FileManager() {
       fetchFiles();
     } catch (error) {
       toast.error("Failed to delete file");
-    }
-  };
-
-  // untuk reprocess OCR
-  const handleReprocessOCR = async (file: FileItem) => {
-    try {
-      const data = await apiRequest(`/files/${file._id}/reprocess-ocr`, {
-        method: 'POST',
-      });
-
-      toast.success(`OCR reprocessing completed! Extracted ${data.text_length} characters.`);
-      fetchFiles(); // Refresh file list
-    } catch (error: unknown) {
-      toast.error(`OCR reprocessing failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -123,18 +113,9 @@ export function FileManager() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h4 className="font-medium">PDF Preview</h4>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleReprocessOCR(file)}
-              >
-                🔍 OCR Reprocess
-              </Button>
-              <Badge variant="secondary">
-                Base64 Storage
-              </Badge>
-            </div>
+            <Badge variant="secondary">
+              Base64 Storage
+            </Badge>
           </div>
 
           <div className="border rounded-lg overflow-hidden">
@@ -417,11 +398,19 @@ export function FileManager() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteFile}>
-              Delete
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteFile}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>
